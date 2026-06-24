@@ -8,7 +8,7 @@ from sqlalchemy import select
 from auth_svc.database import AsyncSessionLocal
 from auth_svc.models import User
 
-DEMO_EMAIL = "demo@flashcards.local"
+DEMO_EMAIL = "demo@example.com"
 DEMO_PASSWORD = "demo1234"
 # Fixed UUID so deck-svc seed can reference the same user without a lookup
 DEMO_USER_ID = uuid.UUID("00000000-0000-0000-0000-000000000001")

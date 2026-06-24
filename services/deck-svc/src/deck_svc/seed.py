@@ -10,7 +10,7 @@ from deck_svc.database import AsyncSessionLocal
 from deck_svc.models import Card, Deck
 
 DEMO_USER_ID_FILE = "/tmp/demo_user_id"
-DEMO_EMAIL = "demo@flashcards.local"
+DEMO_EMAIL = "demo@example.com"
 
 
 def _new_fsrs_state(due_offset_days: int = 0) -> dict[str, Any]:
