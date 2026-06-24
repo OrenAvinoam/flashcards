@@ -2,9 +2,9 @@
 from datetime import UTC, datetime
 from typing import Any
 
-from fsrs import Card, FSRS, Rating, State
+from fsrs import Card, Rating, Scheduler, State
 
-_scheduler = FSRS()
+_scheduler = Scheduler()
 
 _GRADE_MAP: dict[str, Rating] = {
     "again": Rating.Again,
