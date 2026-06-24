@@ -6,7 +6,12 @@ from sqlalchemy.orm import DeclarativeBase
 from deck_svc.config import get_settings
 
 _settings = get_settings()
-engine = create_async_engine(_settings.deck_database_url, echo=False, pool_pre_ping=True)
+engine = create_async_engine(
+    _settings.deck_database_url,
+    echo=False,
+    pool_pre_ping=True,
+    connect_args={"server_settings": {"search_path": "deck"}},
+)
 AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
 
 

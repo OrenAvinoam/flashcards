@@ -6,7 +6,12 @@ from sqlalchemy.orm import DeclarativeBase
 from auth_svc.config import get_settings
 
 _settings = get_settings()
-engine = create_async_engine(_settings.auth_database_url, echo=False, pool_pre_ping=True)
+engine = create_async_engine(
+    _settings.auth_database_url,
+    echo=False,
+    pool_pre_ping=True,
+    connect_args={"server_settings": {"search_path": "auth"}},
+)
 AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
 
 
