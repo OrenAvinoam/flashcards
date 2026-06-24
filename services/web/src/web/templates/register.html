@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register — Flashcards</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+  <div class="w-full max-w-sm bg-white rounded-xl shadow p-8">
+    <h1 class="text-2xl font-bold text-indigo-700 mb-6 text-center">⚡ Flashcards</h1>
+
+    {% if error %}
+    <div class="mb-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2">{{ error }}</div>
+    {% endif %}
+
+    <form method="post" action="/register" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+        <input type="email" name="email" required autocomplete="email"
+               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+        <input type="password" name="password" required autocomplete="new-password"
+               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
+      </div>
+      <button type="submit"
+              class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded-lg text-sm transition">
+        Create account
+      </button>
+    </form>
+
+    <p class="mt-4 text-center text-sm text-gray-500">
+      Already have an account? <a href="/login" class="text-indigo-600 hover:underline">Log in</a>
+    </p>
+  </div>
+</body>
+</html>

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Study — {{ deck.name }}{% endblock %}
+
+{% block content %}
+<div class="flex items-center gap-3 mb-8">
+  <a href="/decks/{{ deck.id }}" class="text-gray-400 hover:text-gray-600 text-sm">← {{ deck.name }}</a>
+  <span class="text-gray-300">/</span>
+  <h1 class="text-xl font-bold text-gray-800">Study</h1>
+</div>
+
+{% if card %}
+<div class="max-w-xl mx-auto">
+  <!-- Flashcard flip -->
+  <div id="card-area" class="bg-white rounded-2xl shadow-md border border-gray-100 min-h-48 p-8 text-center cursor-pointer select-none mb-6"
+       onclick="document.getElementById('front').classList.toggle('hidden'); document.getElementById('back').classList.toggle('hidden'); document.getElementById('grade-area').classList.toggle('hidden');">
+    <div id="front">
+      <p class="text-xs font-medium text-indigo-400 uppercase tracking-wide mb-3">Question</p>
+      <p class="text-xl text-gray-800 font-medium">{{ card.front }}</p>
+      <p class="text-xs text-gray-400 mt-6">Tap to reveal answer</p>
+    </div>
+    <div id="back" class="hidden">
+      <p class="text-xs font-medium text-green-500 uppercase tracking-wide mb-3">Answer</p>
+      <p class="text-xl text-gray-800 font-medium">{{ card.back }}</p>
+    </div>
+  </div>
+
+  <!-- Grade buttons — hidden until card is flipped -->
+  <div id="grade-area" class="hidden">
+    <p class="text-center text-sm text-gray-500 mb-4">How did it go?</p>
+    <div class="grid grid-cols-4 gap-2">
+      {% for grade, label, color in [
+        ("again", "Again", "bg-red-500 hover:bg-red-600"),
+        ("hard",  "Hard",  "bg-orange-400 hover:bg-orange-500"),
+        ("good",  "Good",  "bg-green-500 hover:bg-green-600"),
+        ("easy",  "Easy",  "bg-blue-500 hover:bg-blue-600"),
+      ] %}
+      <form method="post" action="/study/review">
+        <input type="hidden" name="card_id" value="{{ card.id }}"/>
+        <input type="hidden" name="deck_id" value="{{ deck.id }}"/>
+        <input type="hidden" name="grade" value="{{ grade }}"/>
+        <button type="submit"
+                class="w-full {{ color }} text-white font-semibold py-3 rounded-xl text-sm transition">
+          {{ label }}
+        </button>
+      </form>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% else %}
+<div class="max-w-xl mx-auto text-center py-20">
+  <p class="text-5xl mb-4">🎉</p>
+  <h2 class="text-xl font-bold text-gray-800 mb-2">All done for now!</h2>
+  <p class="text-gray-500 text-sm mb-6">No cards due in this deck. Come back later or study another deck.</p>
+  <a href="/decks" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-2.5 rounded-lg text-sm transition">
+    Back to Decks
+  </a>
+</div>
+{% endif %}
+{% endblock %}

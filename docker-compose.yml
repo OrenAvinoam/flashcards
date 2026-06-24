@@ -1,0 +1,149 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: flashcards
+      POSTGRES_USER: flashcards
+      POSTGRES_PASSWORD: flashcards
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U flashcards"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  auth-svc:
+    build:
+      context: .
+      dockerfile: services/auth-svc/Dockerfile
+    env_file: .env
+    environment:
+      SERVICE_NAME: auth-svc
+    ports:
+      - "8001:8001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8001/healthz')\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  deck-svc:
+    build:
+      context: .
+      dockerfile: services/deck-svc/Dockerfile
+    env_file: .env
+    environment:
+      SERVICE_NAME: deck-svc
+    ports:
+      - "8002:8002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8002/healthz')\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  scheduler-svc:
+    build:
+      context: .
+      dockerfile: services/scheduler-svc/Dockerfile
+    env_file: .env
+    environment:
+      SERVICE_NAME: scheduler-svc
+    ports:
+      - "8003:8003"
+    depends_on:
+      redis:
+        condition: service_healthy
+      deck-svc:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8003/healthz')\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  generation-svc:
+    build:
+      context: .
+      dockerfile: services/generation-svc/Dockerfile
+    env_file: .env
+    environment:
+      SERVICE_NAME: generation-svc
+    ports:
+      - "8004:8004"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8004/healthz')\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  generation-worker:
+    build:
+      context: .
+      dockerfile: services/generation-svc/Dockerfile
+    env_file: .env
+    environment:
+      SERVICE_NAME: generation-worker
+    command: ["python", "-m", "arq", "generation_svc.worker.WorkerSettings"]
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: services/web/Dockerfile
+    env_file: .env
+    environment:
+      SERVICE_NAME: web
+    ports:
+      - "8000:8000"
+    depends_on:
+      auth-svc:
+        condition: service_healthy
+      deck-svc:
+        condition: service_healthy
+      scheduler-svc:
+        condition: service_healthy
+      generation-svc:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    profiles: ["observability"]
+    volumes:
+      - ./infra/otel/collector-config.yaml:/etc/otelcol-contrib/config.yaml:ro
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+
+volumes:
+  postgres_data:

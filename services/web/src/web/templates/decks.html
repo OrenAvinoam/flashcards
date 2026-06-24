@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}My Decks — Flashcards{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-2xl font-bold text-gray-800">My Decks</h1>
+  <button onclick="document.getElementById('new-deck-modal').classList.remove('hidden')"
+          class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition">
+    + New Deck
+  </button>
+</div>
+
+{% if decks %}
+<div class="grid gap-4 sm:grid-cols-2">
+  {% for deck in decks %}
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 flex flex-col gap-3">
+    <h2 class="font-semibold text-gray-900 text-lg">{{ deck.name }}</h2>
+    <p class="text-xs text-gray-400">Created {{ deck.created_at[:10] }}</p>
+    <div class="flex gap-2 mt-auto">
+      <a href="/decks/{{ deck.id }}"
+         class="flex-1 text-center text-sm border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium py-1.5 rounded-lg transition">
+        Browse
+      </a>
+      <a href="/decks/{{ deck.id }}/study"
+         class="flex-1 text-center text-sm bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-1.5 rounded-lg transition">
+        Study
+      </a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-20 text-gray-400">
+  <p class="text-5xl mb-4">📚</p>
+  <p class="text-lg font-medium">No decks yet</p>
+  <p class="text-sm mt-1">Create your first deck or <a href="/upload" class="text-indigo-500 hover:underline">upload a document</a>.</p>
+</div>
+{% endif %}
+
+<!-- New Deck Modal -->
+<div id="new-deck-modal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+  <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-sm mx-4">
+    <h2 class="font-bold text-gray-800 mb-4">New Deck</h2>
+    <form method="post" action="/decks" class="space-y-3">
+      <input type="text" name="name" placeholder="Deck name" required autofocus
+             class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"/>
+      <div class="flex gap-2">
+        <button type="button"
+                onclick="document.getElementById('new-deck-modal').classList.add('hidden')"
+                class="flex-1 border border-gray-200 text-gray-600 text-sm py-2 rounded-lg hover:bg-gray-50 transition">
+          Cancel
+        </button>
+        <button type="submit"
+                class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold py-2 rounded-lg transition">
+          Create
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

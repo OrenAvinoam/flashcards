@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}Flashcards{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <nav class="bg-indigo-700 text-white px-6 py-3 flex items-center gap-6 shadow">
+    <a href="/decks" class="font-bold text-lg tracking-tight">⚡ Flashcards</a>
+    <a href="/decks" class="text-indigo-200 hover:text-white text-sm">My Decks</a>
+    <a href="/upload" class="text-indigo-200 hover:text-white text-sm">Upload</a>
+    <a href="/logout" class="ml-auto text-indigo-200 hover:text-white text-sm">Log out</a>
+  </nav>
+
+  <main class="max-w-4xl mx-auto px-4 py-8">
+    {% block content %}{% endblock %}
+  </main>
+
+</body>
+</html>

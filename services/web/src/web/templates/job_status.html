@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Generation Job — Flashcards{% endblock %}
+
+{% block content %}
+<div class="flex items-center gap-3 mb-6">
+  <a href="/upload" class="text-gray-400 hover:text-gray-600 text-sm">← Upload</a>
+  <span class="text-gray-300">/</span>
+  <h1 class="text-xl font-bold text-gray-800">Generated Cards</h1>
+</div>
+
+{% if job.status in ("queued", "in_progress") %}
+<!-- Auto-refresh while pending -->
+<meta http-equiv="refresh" content="3"/>
+<div class="max-w-xl mx-auto text-center py-16">
+  <div class="inline-block w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-5"></div>
+  <p class="text-gray-700 font-medium">
+    {% if job.status == "queued" %}Waiting in queue…{% else %}Generating cards…{% endif %}
+  </p>
+  <p class="text-xs text-gray-400 mt-2">This page refreshes automatically.</p>
+</div>
+
+{% elif job.status == "complete" and job.result %}
+<div class="mb-6 text-sm text-green-700 bg-green-50 border border-green-200 rounded px-3 py-2">
+  {{ job.result | length }} card{{ 's' if job.result | length != 1 else '' }} generated. Review and add to a deck below.
+</div>
+
+<form method="post" action="/jobs/{{ job_id }}/add-to-deck" class="space-y-5">
+  <!-- Deck selector -->
+  <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-center gap-3">
+    <label class="text-sm font-medium text-gray-700 shrink-0">Add to deck:</label>
+    <select name="deck_id" required
+            class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+      {% for deck in decks %}
+      <option value="{{ deck.id }}">{{ deck.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <!-- Card drafts -->
+  <div class="space-y-3">
+    {% for card in job.result %}
+    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+      <div class="grid sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-medium text-gray-400 mb-1">Front</label>
+          <textarea name="fronts" rows="2"
+                    class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none">{{ card.front }}</textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-400 mb-1">Back</label>
+          <textarea name="backs" rows="2"
+                    class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none">{{ card.back }}</textarea>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <button type="submit"
+          class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-2.5 rounded-lg text-sm transition">
+    Add All Cards to Deck
+  </button>
+</form>
+
+{% elif job.status == "failed" %}
+<div class="max-w-xl mx-auto text-center py-16">
+  <p class="text-4xl mb-4">⚠️</p>
+  <p class="font-medium text-gray-800">Generation failed</p>
+  <p class="text-sm text-gray-500 mt-1">The AI job encountered an error. <a href="/upload" class="text-indigo-500 hover:underline">Try again</a>.</p>
+</div>
+
+{% else %}
+<div class="max-w-xl mx-auto text-center py-16">
+  <p class="text-sm text-gray-500">Job not found. <a href="/upload" class="text-indigo-500 hover:underline">Start a new one</a>.</p>
+</div>
+{% endif %}
+{% endblock %}
