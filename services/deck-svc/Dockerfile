@@ -9,7 +9,8 @@ RUN uv pip install --system \
     "uvicorn[standard]>=0.30" \
     "sqlalchemy[asyncio]>=2.0" \
     "alembic>=1.13" \
-    "asyncpg>=0.30"
+    "asyncpg>=0.30" \
+    "opentelemetry-instrumentation-sqlalchemy>=0.46b0"
 
 WORKDIR /app
 COPY services/deck-svc/src /app/src

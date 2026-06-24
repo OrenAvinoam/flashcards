@@ -3,10 +3,15 @@ from opentelemetry import trace
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.httpx import HTTPXClientInstrumentor
-from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
+
+try:
+    from opentelemetry.instrumentation.sqlalchemy import SQLAlchemyInstrumentor as _SQLAlchemyInstrumentor
+    _has_sqlalchemy = True
+except ImportError:
+    _has_sqlalchemy = False
 
 
 def setup_otel(app: FastAPI, service_name: str, endpoint: str) -> None:
@@ -20,4 +25,5 @@ def setup_otel(app: FastAPI, service_name: str, endpoint: str) -> None:
 
     FastAPIInstrumentor.instrument_app(app)
     HTTPXClientInstrumentor().instrument()
-    SQLAlchemyInstrumentor().instrument()
+    if _has_sqlalchemy:
+        _SQLAlchemyInstrumentor().instrument()

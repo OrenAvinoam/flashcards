@@ -12,7 +12,8 @@ RUN uv pip install --system \
     "sqlalchemy[asyncio]>=2.0" \
     "alembic>=1.13" \
     "asyncpg>=0.30" \
-    "argon2-cffi>=23.1"
+    "argon2-cffi>=23.1" \
+    "opentelemetry-instrumentation-sqlalchemy>=0.46b0"
 
 WORKDIR /app
 COPY services/auth-svc/src /app/src
