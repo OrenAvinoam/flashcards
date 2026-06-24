@@ -17,8 +17,7 @@ router = APIRouter()
 
 
 def _render(request: Request, template: str, ctx: dict[str, Any] | None = None) -> HTMLResponse:
-    context: dict[str, Any] = {"request": request, **(ctx or {})}
-    return templates.TemplateResponse(template, context)
+    return templates.TemplateResponse(request=request, name=template, context=ctx or {})
 
 
 # --- Auth ---
